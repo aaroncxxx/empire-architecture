@@ -15,6 +15,7 @@ A multi-agent AI collaboration system inspired by China's Three Departments and 
 | [v1.3 知识增强](./lite/knowledge/) | 翰林院 + 四大知识源 + 审计 | ✅ 可用 |
 | [v1.4 皇帝授权](./lite/knowledge/) | 社区知识源 + 皇帝审批流程 | ✅ 可用 |
 | [v1.41 实战记录](./CHANGELOG-v1.41.md) | 首次实战执行示例 + 节点修复 | ✅ 可用 |
+| [v1.42 协作写作](./CHANGELOG-v1.42.md) | 多节点协作写作实战 + 能力画像 | ✅ 可用 |
 
 ## v1 完整版 / Full Architecture
 
@@ -108,6 +109,7 @@ results = await rag.search("查询内容", top_k=3)
 | v1.3 知识增强 | 8 AI + 4 知识管理 | 1 |
 | v1.4 皇帝授权 | 8 AI + 8 知识管理 + 1 祭酒 | 1 |
 | v1.41 实战记录 | 8 AI + 实战示例 + 节点修复 | 1 |
+| v1.42 协作写作 | 8 AI + 协作写作实战 + 能力画像 | 1 |
 
 ## v1.4 社区知识源 / Community Knowledge Sources
 
