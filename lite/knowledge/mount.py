@@ -12,6 +12,7 @@ from .tencent_cloud import TencentCloudKnowledge
 from .feishu import FeishuKnowledge
 from .notion_kb import NotionKnowledge
 from .local_rag import LocalRAGKnowledge
+from .community import WaytoAGIKnowledge, DataWhaleKnowledge, ModelScopeKnowledge, LiblibAIKnowledge
 from .hanlin import HanlinScholar, HanlinDirector
 from .audit import KnowledgeAudit
 from .config import load_config
@@ -86,6 +87,48 @@ def mount_knowledge(chancellor=None) -> dict:
 
     scholar_rag = HanlinScholar("scholar_rag", "本地RAG大学士", "local_rag")
     director.register_scholar(scholar_rag, rag_provider)
+
+    # ========== 社区知识源（需皇帝批准） ==========
+
+    # ⑤ WaytoAGI
+    waytoagi_cfg = cfg.get("waytoagi", {})
+    waytoagi_provider = WaytoAGIKnowledge()
+    if waytoagi_cfg.get("enabled"):
+        waytoagi_provider.approve()
+        router.register(waytoagi_provider)
+
+    scholar_wa = HanlinScholar("scholar_waytoagi", "WaytoAGI大学士", "waytoagi")
+    director.register_scholar(scholar_wa, waytoagi_provider)
+
+    # ⑥ DataWhale
+    datawhale_cfg = cfg.get("datawhale", {})
+    datawhale_provider = DataWhaleKnowledge()
+    if datawhale_cfg.get("enabled"):
+        datawhale_provider.approve(github_token=datawhale_cfg.get("github_token", ""))
+        router.register(datawhale_provider)
+
+    scholar_dw = HanlinScholar("scholar_datawhale", "DataWhale大学士", "datawhale")
+    director.register_scholar(scholar_dw, datawhale_provider)
+
+    # ⑦ ModelScope
+    modelscope_cfg = cfg.get("modelscope", {})
+    modelscope_provider = ModelScopeKnowledge()
+    if modelscope_cfg.get("enabled"):
+        modelscope_provider.approve(token=modelscope_cfg.get("token", ""))
+        router.register(modelscope_provider)
+
+    scholar_ms = HanlinScholar("scholar_modelscope", "ModelScope大学士", "modelscope")
+    director.register_scholar(scholar_ms, modelscope_provider)
+
+    # ⑧ LiblibAI
+    liblibai_cfg = cfg.get("liblibai", {})
+    liblibai_provider = LiblibAIKnowledge()
+    if liblibai_cfg.get("enabled"):
+        liblibai_provider.approve(api_key=liblibai_cfg.get("api_key", ""))
+        router.register(liblibai_provider)
+
+    scholar_ll = HanlinScholar("scholar_liblibai", "LiblibAI大学士", "liblibai")
+    director.register_scholar(scholar_ll, liblibai_provider)
 
     # 挂载到 Chancellor
     if chancellor is not None:

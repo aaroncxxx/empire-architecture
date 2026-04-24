@@ -21,6 +21,7 @@ from .local_rag import LocalRAGKnowledge
 from .router import KnowledgeRouter
 from .hanlin import HanlinScholar, HanlinDirector
 from .audit import KnowledgeAudit
+from .community import WaytoAGIKnowledge, DataWhaleKnowledge, ModelScopeKnowledge, LiblibAIKnowledge
 
 __all__ = [
     "KnowledgeProvider",
@@ -29,6 +30,10 @@ __all__ = [
     "FeishuKnowledge",
     "NotionKnowledge",
     "LocalRAGKnowledge",
+    "WaytoAGIKnowledge",
+    "DataWhaleKnowledge",
+    "ModelScopeKnowledge",
+    "LiblibAIKnowledge",
     "KnowledgeRouter",
     "HanlinScholar",
     "HanlinDirector",

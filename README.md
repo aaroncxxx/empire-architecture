@@ -13,6 +13,7 @@ A multi-agent AI collaboration system inspired by China's Three Departments and 
 | [v1 完整版](./empire-architecture-v1.md) | 41节点 + 联邦学习 + 投票制 | 设计文档 |
 | [v1.1 精简版](./lite/) | 8节点 + 零依赖 + 可运行 | ✅ 可用 |
 | [v1.3 知识增强](./lite/knowledge/) | 翰林院 + 四大知识源 + 审计 | ✅ 可用 |
+| [v1.4 皇帝授权](./lite/knowledge/) | 社区知识源 + 皇帝审批流程 | ✅ 可用 |
 
 ## v1 完整版 / Full Architecture
 
@@ -104,6 +105,46 @@ results = await rag.search("查询内容", top_k=3)
 | v1 完整版 | 41 AI + 1 皇帝 | 1 |
 | v1.1 精简版 | 8 AI | 1 |
 | v1.3 知识增强 | 8 AI + 4 知识管理 | 1 |
+| v1.4 皇帝授权 | 8 AI + 8 知识管理 + 1 祭酒 | 1 |
+
+## v1.4 社区知识源 / Community Knowledge Sources
+
+详见 [lite/knowledge/community.py](./lite/knowledge/community.py)
+
+### 皇帝审批流程 / Emperor Approval Flow
+
+所有社区知识源默认关闭，需皇帝提供凭据后启用。
+
+```
+官员请求知识 → 检查是否已批准 → 未批准返回"待皇帝批准"
+                                    ↓ 已批准
+                              正常检索并返回结果
+```
+
+### 社区知识源 / Community Sources
+
+| 知识源 | 说明 | 皇帝需提供 |
+|--------|------|-----------|
+| WaytoAGI | AI 知识库 + 工具导航 | 无（批准即可） |
+| DataWhale | 开源学习社区教程 | GitHub Token（可选） |
+| ModelScope | 阿里模型平台 | ModelScope Token |
+| LiblibAI | AI 绘画模型平台 | API Key |
+
+### 翰林院完整编制 / Full Hanlin Academy
+
+| 角色 | 人数 | 职能 |
+|------|------|------|
+| 翰林院祭酒 | 1 | 统筹调度，跨源检索 |
+| 腾讯云大学士 | 1 | 管理腾讯云知识引擎 |
+| 飞书大学士 | 1 | 管理飞书知识库 |
+| Notion大学士 | 1 | 管理 Notion 知识库 |
+| 本地RAG大学士 | 1 | 管理本地向量库 |
+| WaytoAGI大学士 | 1 | 管理 WaytoAGI 知识 |
+| DataWhale大学士 | 1 | 管理 DataWhale 教程 |
+| ModelScope大学士 | 1 | 管理 ModelScope 模型 |
+| LiblibAI大学士 | 1 | 管理 LiblibAI 模型 |
+
+**总计：1 祭酒 + 8 大学士 = 9 个知识管理节点**
 
 ## License
 

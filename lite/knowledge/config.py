@@ -39,6 +39,31 @@ KNOWLEDGE_CONFIG = {
         "enabled": True,        # 本地 RAG 默认启用
         "persist_dir": "./data/knowledge",  # 向量库持久化目录
     },
+
+    # ========== 社区知识源（需皇帝批准） ==========
+
+    "waytoagi": {
+        "enabled": False,       # 皇帝批准后改 True
+        "note": "免费平台，无需 API Key，皇帝批准即可启用",
+    },
+
+    "datawhale": {
+        "enabled": False,
+        "github_token": "",     # 可选，提高 GitHub rate limit
+        "note": "GitHub 开源教程，可选 Token",
+    },
+
+    "modelscope": {
+        "enabled": False,
+        "token": "",            # ModelScope Token
+        "note": "需皇帝提供 ModelScope Token",
+    },
+
+    "liblibai": {
+        "enabled": False,
+        "api_key": "",          # LiblibAI API Key
+        "note": "需皇帝提供 LiblibAI API Key",
+    },
 }
 
 # 也可以从环境变量读取（优先级高于上面的配置）
