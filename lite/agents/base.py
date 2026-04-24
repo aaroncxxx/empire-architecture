@@ -7,9 +7,9 @@ import urllib.request
 import urllib.error
 from dataclasses import dataclass, field
 from typing import Optional
-from empire.core.bus import MessageBus, Message, MessageType
-from empire.core.tokens import TokenTracker
-from empire.core.config import load_llm_credentials, load_empire_config
+from core.bus import MessageBus, Message, MessageType
+from core.tokens import TokenTracker
+from core.config import load_llm_credentials, load_empire_config
 
 
 @dataclass

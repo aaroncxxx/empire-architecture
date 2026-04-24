@@ -2,11 +2,11 @@
 import asyncio
 import uuid
 import time
-from empire.core.bus import MessageBus, Message, MessageType
-from empire.core.tokens import TokenTracker
-from empire.core.security import SecuritySystem, ViolationLevel
-from empire.agents.base import Agent
-from empire.core.config import load_empire_config
+from core.bus import MessageBus, Message, MessageType
+from core.tokens import TokenTracker
+from core.security import SecuritySystem, ViolationLevel
+from agents.base import Agent
+from core.config import load_empire_config
 
 
 class Chancellor:
