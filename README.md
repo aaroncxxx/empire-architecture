@@ -16,6 +16,8 @@ A multi-agent AI collaboration system inspired by China's Three Departments and 
 | [v1.4 皇帝授权](./lite/knowledge/) | 社区知识源 + 皇帝审批流程 | ✅ 可用 |
 | [v1.41 实战记录](./CHANGELOG-v1.41.md) | 首次实战执行示例 + 节点修复 | ✅ 可用 |
 | [v1.42 协作写作](./CHANGELOG-v1.42.md) | 多节点协作写作实战 + 能力画像 | ✅ 可用 |
+| [v1.4 评估报告](./EVALUATION-v1.4.md) | v1.4 实战评估 + 优化建议 | ✅ 可用 |
+| v1.5 知识层运行器 | `lite/v14_runner.py` 挂载翰林院执行指令 | ✅ 可用 |
 
 ## v1 完整版 / Full Architecture
 
@@ -149,6 +151,43 @@ results = await rag.search("查询内容", top_k=3)
 | LiblibAI大学士 | 1 | 管理 LiblibAI 模型 |
 
 **总计：1 祭酒 + 8 大学士 = 9 个知识管理节点**
+
+## v1.5 知识层运行器 / Knowledge Layer Runner
+
+### 本次新增文件 / New Files in v1.5
+
+| 文件 | 说明 / Description |
+|------|------|
+| [EVALUATION-v1.4.md](./EVALUATION-v1.4.md) | v1.4 实战评估报告，包含节点表现评分、v1.4 vs v1.1 对比、知识层技术评价、短/中/长期优化建议 / v1.4 battle evaluation report: node performance scoring, v1.4 vs v1.1 comparison, knowledge layer tech review, short/mid/long-term optimization plan |
+| [lite/v14_runner.py](./lite/v14_runner.py) | v1.4 知识层挂载运行器，自动初始化翰林院 8 大学士并执行皇帝指令 / v1.4 knowledge layer runner: auto-initializes Hanlin Academy with 8 scholars, then executes emperor commands |
+| lite/data/knowledge/ | Local RAG 运行时索引数据目录（自动生成） / Local RAG runtime index data directory (auto-generated) |
+
+### 运行 v1.5 / Run v1.5
+
+```bash
+cd lite
+export MIMO_API_KEY="your-key"
+export MIMO_API_ENDPOINT="https://your-endpoint/v1"
+python3 v14_runner.py "你的指令 / your command"
+```
+
+### 评估亮点 / Evaluation Highlights
+
+**vs v1.1 提升 / Improvement vs v1.1:**
+- ⏱️ 执行耗时 ↓11.6% (181.5s → 160.4s)
+- 📚 知识层 8 大学士全部挂载
+- 📊 丞相输出从基础汇报升级为结构化+量化报告
+- 👥 节点利用率 50% → 62.5%
+
+**丞相总结的四条核心价值 / Four Core Values (Chancellor Summary):**
+1. 决策中枢：从经验驱动升级为数据智能驱动 / Decision hub: from experience-driven to data-intelligence-driven
+2. 组织智慧沉淀：打破知识孤岛 / Organizational wisdom: breaks knowledge silos
+3. 风险主动防御 / Proactive risk defense
+4. 效率倍增器 / Efficiency multiplier
+
+**下一优先 / Next Priority:**
+> 配置 1-2 个知识源凭据（如 Notion），启动知识注入闭环验证。
+> Configure 1-2 knowledge source credentials (e.g. Notion) to kick off knowledge injection closed-loop validation.
 
 ## License
 
