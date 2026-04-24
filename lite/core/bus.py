@@ -16,6 +16,7 @@ class MessageType(Enum):
     VOTE = "vote"              # 锦衣卫投票
     SYNC = "sync"              # 节点间同步
     HEARTBEAT = "heartbeat"    # 心跳
+    PEER = "peer"              # v1.6: 节点间直连通信
 
 
 @dataclass

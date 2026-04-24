@@ -8,16 +8,17 @@ A multi-agent AI collaboration system inspired by China's Three Departments and 
 
 ## 版本 / Versions
 
-| 版本 | 说明 | 状态 |
+| 版本 / Version | 说明 / Description | 状态 / Status |
 |------|------|------|
-| [v1 完整版](./empire-architecture-v1.md) | 41节点 + 联邦学习 + 投票制 | 设计文档 |
-| [v1.1 精简版](./lite/) | 8节点 + 零依赖 + 可运行 | ✅ 可用 |
-| [v1.3 知识增强](./lite/knowledge/) | 翰林院 + 四大知识源 + 审计 | ✅ 可用 |
-| [v1.4 皇帝授权](./lite/knowledge/) | 社区知识源 + 皇帝审批流程 | ✅ 可用 |
-| [v1.41 实战记录](./CHANGELOG-v1.41.md) | 首次实战执行示例 + 节点修复 | ✅ 可用 |
-| [v1.42 协作写作](./CHANGELOG-v1.42.md) | 多节点协作写作实战 + 能力画像 | ✅ 可用 |
-| [v1.4 评估报告](./EVALUATION-v1.4.md) | v1.4 实战评估 + 优化建议 | ✅ 可用 |
-| v1.5 知识层运行器 | `lite/v14_runner.py` 挂载翰林院执行指令 | ✅ 可用 |
+| [v1 完整版](./empire-architecture-v1.md) / Full | 41节点 + 联邦学习 + 投票制 / 41 nodes + federated learning + voting | 设计文档 / Design |
+| [v1.1 精简版](./lite/) / Lite | 8节点 + 零依赖 + 可运行 / 8 nodes + zero dependency + runnable | ✅ 可用 / Usable |
+| [v1.3 知识增强](./lite/knowledge/) / Knowledge | 翰林院 + 四大知识源 + 审计 / Hanlin Academy + 4 knowledge sources + audit | ✅ 可用 / Usable |
+| [v1.4 皇帝授权](./lite/knowledge/) / Emperor Auth | 社区知识源 + 皇帝审批流程 / Community sources + emperor approval | ✅ 可用 / Usable |
+| [v1.41 实战记录](./CHANGELOG-v1.41.md) / Battle Record | 首次实战执行示例 + 节点修复 / First live execution + node fix | ✅ 可用 / Usable |
+| [v1.42 协作写作](./CHANGELOG-v1.42.md) / Collaborative Writing | 多节点协作写作 + 能力画像 / Multi-node writing + capability profiling | ✅ 可用 / Usable |
+| [v1.4 评估报告](./EVALUATION-v1.4.md) / Evaluation | v1.4 实战评估 + 优化建议 / Battle evaluation + optimization plan | ✅ 可用 / Usable |
+| v1.5 知识层运行器 / Knowledge Runner | 挂载翰林院执行指令 / Mount Hanlin Academy and execute | ✅ 可用 / Usable |
+| **[v1.6 科举制](./CHANGELOG-v1.6.md) / Imperial Exam** | **官员晋升科举制 + 并行分发 + 知识路由 + P2P / Official promotion exam + parallel dispatch + knowledge routing + P2P** | ✅ **可用 / Usable** |
 
 ## v1 完整版 / Full Architecture
 
@@ -104,14 +105,15 @@ results = await rag.search("查询内容", top_k=3)
 
 ## 节点总数 / Total Nodes
 
-| 版本 | 节点数 | 人类 |
+| 版本 / Version | 节点数 / Nodes | 人类 / Human |
 |------|--------|------|
-| v1 完整版 | 41 AI + 1 皇帝 | 1 |
-| v1.1 精简版 | 8 AI | 1 |
-| v1.3 知识增强 | 8 AI + 4 知识管理 | 1 |
-| v1.4 皇帝授权 | 8 AI + 8 知识管理 + 1 祭酒 | 1 |
-| v1.41 实战记录 | 8 AI + 实战示例 + 节点修复 | 1 |
-| v1.42 协作写作 | 8 AI + 协作写作实战 + 能力画像 | 1 |
+| v1 完整版 / Full | 41 AI + 1 皇帝 / Emperor | 1 |
+| v1.1 精简版 / Lite | 8 AI | 1 |
+| v1.3 知识增强 / Knowledge | 8 AI + 4 知识管理 / Knowledge Mgmt | 1 |
+| v1.4 皇帝授权 / Emperor Auth | 8 AI + 8 知识管理 + 1 祭酒 / Director | 1 |
+| v1.41 实战记录 / Battle | 8 AI + 实战示例 / Battle Test | 1 |
+| v1.42 协作写作 / Writing | 8 AI + 协作写作 / Collaborative Writing | 1 |
+| v1.6 科举制 / Imperial Exam | 8 AI + 知识路由 + P2P + 科举 / Knowledge + P2P + Exam | 1 |
 
 ## v1.4 社区知识源 / Community Knowledge Sources
 
@@ -188,6 +190,33 @@ python3 v14_runner.py "你的指令 / your command"
 **下一优先 / Next Priority:**
 > 配置 1-2 个知识源凭据（如 Notion），启动知识注入闭环验证。
 > Configure 1-2 knowledge source credentials (e.g. Notion) to kick off knowledge injection closed-loop validation.
+
+## v1.6 官员晋升科举制 / Imperial Examination for Official Promotion
+
+详见 / See [CHANGELOG-v1.6.md](./CHANGELOG-v1.6.md)
+
+### 六大改进 / Six Improvements
+
+1. **🔀 丞相并行分发 + 超时保护 / Parallel Dispatch + Timeout Protection** — 所有节点异步并行执行，单节点超时不影响全局 / All nodes execute asynchronously in parallel; single-node timeout doesn't block the system
+2. **📚 查曹自动触发知识路由 / Researcher Auto-Triggers Knowledge Routing** — 查曹处理任务时自动检索知识，知识层不再是摆设 / Researcher auto-searches knowledge before tasks; knowledge layer is no longer a decoration
+3. **🔄 节点超时 + 失败重试 / Node Timeout + Failure Retry** — LLM 调用自动重试（线性退避），任务级别超时保护 / LLM calls auto-retry with linear backoff; task-level timeout protection
+4. **🎭 角色 Prompt 柔性化 / Flexible Role Prompts** — "擅长+可协助"双层结构，节点不再拒绝非对口任务 / "Good at + Can assist" dual-layer structure; nodes no longer refuse off-role tasks
+5. **📜 科举制度 — 九品中正制 / Imperial Examination — Nine Rank System** — 1024 候补 + 256 官位 + 科举考试 + 翰林院进修 / 1024 reserve agents + 256 official positions + imperial exams + Hanlin Academy training
+6. **🤝 去中心化 P2P 协作 / Decentralized P2P Collaboration** — 节点间可直接通信，不必事事经过丞相 / Nodes communicate directly; not everything goes through the Chancellor
+
+### 运行 v1.6 / Run v1.6
+
+```bash
+cd lite
+export MIMO_API_KEY="your-key"
+export MIMO_API_ENDPOINT="https://your-endpoint/v1"
+
+python3 main.py              # 交互模式
+python3 main.py "你的指令"    # 单次执行
+python3 main.py --capabilities  # 查看节点能力画像
+python3 main.py --knowledge     # 查看知识层状态
+python3 main.py --keju           # 查看科举系统
+```
 
 ## License
 
