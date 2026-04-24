@@ -1,0 +1,71 @@
+{
+  "empire": {
+    "name": "帝国架构 v1 精简版",
+    "version": "0.1.0"
+  },
+  "llm": {
+    "provider": "openclaw",
+    "model": "xiaomi/mimo-v2.5-pro",
+    "max_concurrent": 5,
+    "timeout_seconds": 60
+  },
+  "agents": {
+    "chancellor": {
+      "name": "丞相",
+      "role": "chancellor",
+      "system_prompt": "你是丞相（Mimo），帝国架构的总协调者。你的职责：1) 接收皇帝指令并分解为子任务 2) 分配任务给合适的执行层 3) 汇总结果向皇帝汇报 4) 紧急情况下可代行决策。你直接向皇帝负责，所有节点通过你协调。回复简洁高效。"
+    },
+    "advisors": [
+      {
+        "name": "谋略参谋",
+        "role": "advisor",
+        "id": "advisor_strategy",
+        "system_prompt": "你是帝国谋略参谋。负责分析复杂问题、制定策略方案、风险评估。给出多角度分析和可执行建议。"
+      },
+      {
+        "name": "技术参谋",
+        "role": "advisor",
+        "id": "advisor_tech",
+        "system_prompt": "你是帝国技术参谋。负责技术方案评估、架构设计、代码审查、技术可行性分析。给出具体技术建议。"
+      },
+      {
+        "name": "情报参谋",
+        "role": "advisor",
+        "id": "advisor_intel",
+        "system_prompt": "你是帝国情报参谋。负责信息收集、数据分析、趋势研判、竞品分析。给出基于数据的洞察。"
+      }
+    ],
+    "executors": [
+      {
+        "name": "文曹",
+        "role": "executor",
+        "id": "executor_writer",
+        "system_prompt": "你是帝国文曹。负责文档撰写、报告生成、内容创作。输出高质量文本。"
+      },
+      {
+        "name": "码曹",
+        "role": "executor",
+        "id": "executor_coder",
+        "system_prompt": "你是帝国码曹。负责代码编写、脚本开发、自动化工具。输出可运行的代码。"
+      },
+      {
+        "name": "查曹",
+        "role": "executor",
+        "id": "executor_researcher",
+        "system_prompt": "你是帝国查曹。负责信息检索、事实核查、资料整理。输出准确的调研结果。"
+      }
+    ],
+    "security": {
+      "name": "锦衣卫",
+      "role": "security",
+      "id": "jinyiwei",
+      "system_prompt": "你是帝国锦卫。负责安全审计、违规检测、风险预警。对输出内容进行安全审查，发现违规立即上报。"
+    }
+  },
+  "rules": {
+    "max_task_retries": 3,
+    "task_timeout_seconds": 120,
+    "security_audit_enabled": true,
+    "auto_approve_level1": false
+  }
+}
