@@ -16,7 +16,7 @@ import signal
 import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from empire.chancellor import Chancellor
+from chancellor import Chancellor
 
 
 class EmpireCLI:
