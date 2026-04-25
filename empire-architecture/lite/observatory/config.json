@@ -1,0 +1,53 @@
+{
+  "observatory": {
+    "name": "观星台节点集群",
+    "version": "1.91.0",
+    "cluster_size": {
+      "total_agents": 512,
+      "compute_units": 64,
+      "agents_per_unit": 8
+    },
+    "unit_template": {
+      "parse_agents": 4,
+      "pattern_agents": 2,
+      "qc_agents": 2
+    },
+    "sky_coverage": {
+      "total_units": 64,
+      "bands": ["L", "S", "C", "X", "Ku", "K"],
+      "sky_partitions": 64
+    },
+    "schedule": {
+      "daytime": {
+        "hours": "06:00-18:00",
+        "tasks": ["data_cleaning", "calibration", "preprocessing"],
+        "estimated_tokens": 1000000
+      },
+      "nighttime": {
+        "hours": "18:00-06:00",
+        "tasks": ["intensive_compute", "pattern_recognition", "spectral_analysis"],
+        "estimated_tokens": 8000000
+      }
+    },
+    "quality_control": {
+      "tier_1": "intra_unit_cross_validation",
+      "tier_2": "cross_unit_overlap_comparison",
+      "tier_3": "historical_data_comparison"
+    },
+    "security": {
+      "encryption": "TLS",
+      "differential_privacy": true,
+      "shadow_agents": true,
+      "rto_ms": 50
+    },
+    "storage": {
+      "hot": "ceph_distributed_fs",
+      "warm": "object_storage_minio",
+      "cold": "tape_library"
+    },
+    "elastic_pool": {
+      "enabled": true,
+      "triggers": ["gravitational_wave", "pulsar_candidate", "frb_detection"]
+    }
+  }
+}
