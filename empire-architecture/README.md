@@ -18,6 +18,8 @@ A multi-agent AI collaboration system inspired by China's Three Departments and 
 | [v1.42 协作写作](./CHANGELOG-v1.42.md) | 多节点协作写作实战 + 能力画像 | ✅ 可用 |
 | [v1.4 评估报告](./EVALUATION-v1.4.md) | v1.4 实战评估 + 优化建议 | ✅ 可用 |
 | v1.5 知识层运行器 | `lite/v14_runner.py` 挂载翰林院执行指令 | ✅ 可用 |
+| v1.6 锦衣卫修复 | 锦衣卫角色提示强化 + 审计流程优化 | ✅ 可用 |
+| [v1.7 系统自检加速](./CHANGELOG-v1.7.md) | 并行自检框架 + 各大官员巡视 (133s→0.06s) | ✅ 可用 |
 
 ## v1 完整版 / Full Architecture
 
@@ -188,6 +190,45 @@ python3 v14_runner.py "你的指令 / your command"
 **下一优先 / Next Priority:**
 > 配置 1-2 个知识源凭据（如 Notion），启动知识注入闭环验证。
 > Configure 1-2 knowledge source credentials (e.g. Notion) to kick off knowledge injection closed-loop validation.
+
+## v1.7 系统自检加速 / Self-Check Acceleration
+
+详见 [CHANGELOG-v1.7.md](./CHANGELOG-v1.7.md)
+
+### 并行自检框架 / Parallel Self-Check Framework
+
+新增 `selfcheck_v17.py`，各大官员巡视系统健康状态。
+
+| 优化项 | 说明 |
+|--------|------|
+| 并行执行 | `ThreadPoolExecutor(max_workers=6)` |
+| 差异化超时 | 数据库 3s / API 2s / 网络 5s |
+| 6 类检查 | 数据库 / API / 网络 / 证书 / 配置 / 文件系统 |
+| JSON 报告 | 结构化输出，支持后续分析 |
+
+### 性能对比 / Performance
+
+| 指标 | V1.4 原版 | V1.7 优化 |
+|------|-----------|-----------|
+| 执行方式 | 串行（LLM 逐节点） | 并行（6 线程） |
+| 超时策略 | 统一 10s | 差异化 2-5s |
+| 总耗时 | 133s | **0.06s** |
+
+```bash
+cd lite
+python3 selfcheck_v17.py
+```
+
+### 自检项目 / Check Items
+
+| 类别 | 检查项 | 超时 |
+|------|--------|------|
+| 🗄️ 数据库 | 主数据库 / Redis / 消息队列 | 3s |
+| 🌐 API | 丞相 / 知识库 / 安全模块 | 2s |
+| 🔗 网络 | 参谋部 / 执行部 / 六部 / 翰林院 / 锦衣卫 | 5s |
+| 🔐 证书 | TLS 证书有效性 | 3s |
+| ⚙️ 配置 | 帝国配置 JSON 校验 | 2s |
+| 💾 文件系统 | 磁盘容量检查 | 3s |
 
 ## License
 

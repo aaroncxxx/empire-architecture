@@ -1,4 +1,4 @@
-# Empire-Architecture v1.5
+# Empire-Architecture v1.7
 
 基于中国古代三公九卿制的 AI 多智能体协作系统。
 
@@ -10,6 +10,7 @@
 │   │   ├── main.py         # CLI入口
 │   │   ├── chancellor.py   # 丞相协调器
 │   │   ├── v14_runner.py   # 知识层运行器
+│   │   ├── selfcheck_v17.py # V1.7 并行自检框架
 │   │   ├── config.json     # 24节点配置
 │   │   ├── agents/         # Agent基类
 │   │   ├── core/           # 消息总线/Token/安全
