@@ -1,4 +1,4 @@
-"""帝国架构 - Agent 基类"""
+"""帝国架构 - Agent 基类 v2.0"""
 import asyncio
 import json
 import time
@@ -54,7 +54,7 @@ class Agent:
 
         messages = [{"role": "system", "content": self.system_prompt}]
         if context:
-            messages.append({"role": "user", "content": f"背景信息：\n{context}"})
+            messages.append({"role": "user", "content": f"背景知识（仅供参考，基于检索自动注入）：\n{context}"})
         messages.append({"role": "user", "content": prompt})
 
         body = json.dumps({
@@ -70,7 +70,6 @@ class Agent:
         }
 
         url = creds['base_url']
-        # 如果 base_url 已经包含完整路径，直接用；否则拼接
         if not url.endswith("/chat/completions"):
             url = url.rstrip("/") + "/chat/completions"
 
@@ -79,7 +78,6 @@ class Agent:
             with urllib.request.urlopen(req, timeout=cfg["llm"]["timeout_seconds"]) as resp:
                 data = json.loads(resp.read())
 
-            # 提取 token 使用
             usage = data.get("usage", {})
             self.tracker.log_usage(
                 self.state.agent_id,
