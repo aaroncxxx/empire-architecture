@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "skills": {
+    "how-much-token-did-this-chat-used": {
+      "version": "2.1.0",
+      "installedAt": 1777261510847
+    },
+    "system-selfcheck": {
+      "version": "1.2.0",
+      "installedAt": 1777261520320
+    }
+  }
+}

@@ -105,7 +105,31 @@ check_memory() {
       result pass "Memory" "$detail"
     fi
   else
-    result pass "Memory" "$(sysctl -n hw.memsize 2>/dev/null | awk '{printf "%.1fG", $1/1024/1024/1024}') (macOS)"
+    # macOS: parse vm_stat for available memory
+    local page_size free_pages active_pages speculative_pages total_bytes avail_bytes total_mb avail_mb pct
+    page_size=$(sysctl -n hw.pagesize 2>/dev/null || echo 4096)
+    total_bytes=$(sysctl -n hw.memsize 2>/dev/null || echo 0)
+    total_mb=$((total_bytes / 1024 / 1024))
+    # vm_stat outputs pages; "Pages free" + "Pages speculative" ≈ available
+    free_pages=$(vm_stat 2>/dev/null | awk '/Pages free/ {gsub(/\./,"",$3); print $3}')
+    speculative_pages=$(vm_stat 2>/dev/null | awk '/Pages speculative/ {gsub(/\./,"",$3); print $3}')
+    free_pages=${free_pages:-0}
+    speculative_pages=${speculative_pages:-0}
+    avail_bytes=$(( (free_pages + speculative_pages) * page_size ))
+    avail_mb=$((avail_bytes / 1024 / 1024))
+    if (( total_mb > 0 )); then
+      pct=$((avail_mb * 100 / total_mb))
+    else
+      pct=100
+    fi
+    local detail="${total_mb}M total / ${avail_mb}M available (${pct}%)"
+    if (( pct < 10 )); then
+      result fail "Memory" "$detail — CRITICAL"
+    elif (( pct < 30 )); then
+      result warn "Memory" "$detail — LOW"
+    else
+      result pass "Memory" "$detail"
+    fi
   fi
 }
 
@@ -196,7 +220,18 @@ check_network() {
 check_openclaw() {
   if command -v openclaw &>/dev/null; then
     local oc_ver=$(openclaw --version 2>&1 | head -1)
-    result pass "Platform" "OpenClaw $oc_ver"
+    # Check latest version from npm registry
+    local latest_ver=""
+    if command -v curl &>/dev/null; then
+      latest_ver=$(curl -s --connect-timeout 5 --max-time 10 \
+        "https://registry.npmjs.org/openclaw/latest" 2>/dev/null \
+        | grep -o '"version":"[^"]*"' | head -1 | cut -d'"' -f4 || echo "")
+    fi
+    if [[ -n "$latest_ver" && "$oc_ver" != *"$latest_ver"* ]]; then
+      result warn "Platform" "OpenClaw $oc_ver (latest: $latest_ver)"
+    else
+      result pass "Platform" "OpenClaw $oc_ver"
+    fi
 
     # Gateway
     local gw_status=$(openclaw gateway status 2>&1 || echo "unknown")
@@ -219,10 +254,22 @@ check_openclaw() {
 
 # --- Skills ---
 check_skills() {
-  local skill_dir="${HOME}/.openclaw/skills"
+  local skill_dir=""
+  # Try to get skills dir from openclaw config
+  if command -v openclaw &>/dev/null; then
+    skill_dir=$(openclaw config get skills.dir 2>/dev/null || echo "")
+  fi
+  # Fallback to default
+  if [[ -z "$skill_dir" ]]; then
+    skill_dir="${HOME}/.openclaw/skills"
+  fi
+  # Handle relative path
+  if [[ "$skill_dir" != /* ]]; then
+    skill_dir="${HOME}/.openclaw/$skill_dir"
+  fi
   if [[ -d "$skill_dir" ]]; then
     local count=$(ls -d "$skill_dir"/*/ 2>/dev/null | wc -l)
-    result pass "Skills" "$count installed"
+    result pass "Skills" "$count installed ($skill_dir)"
   else
     result warn "Skills" "Directory not found: $skill_dir"
   fi
@@ -334,7 +381,11 @@ fi
 
 if ! $JSON; then
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  echo "  Summary: $PASS passed | $WARN warnings | $FAIL failed"
+  if $BRIEF && (( WARN == 0 )) && (( FAIL == 0 )); then
+    echo "  All clear ✅"
+  else
+    echo "  Summary: $PASS passed | $WARN warnings | $FAIL failed"
+  fi
   echo ""
 fi
 

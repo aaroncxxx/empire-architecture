@@ -94,19 +94,32 @@ bash "{baseDir}/scripts/selfcheck.sh" --fix
 ```
 ⚡ System Self-Check Report — OpenClaw
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[Platform]  ✅ OpenClaw 2026.3.12
+[Platform]  ⚠️ OpenClaw 2026.3.12 (latest: 2026.4.24)
 [System]    ✅ Linux 6.8.0 | Xeon × 2 | x86_64
-[Memory]    ⚠️ 3.4G total / 2.4G available (71%)
+[Memory]    ✅ 3499M total / 2529M available (72%)
 [Disk]      ✅ 40G / 30G free (22%)
 [Runtime]   ✅ Python 3.12.3 | Node v22.22.1
-[Deps]      ✅ ffmpeg 6.1.1 | jq ✅ | ❌ gh CLI
+[Deps]      ✅ ffmpeg 6.1.1 | jq ✅ | curl ✅ | git ✅
 [Network]   ✅ github.com 200 (1.2s)
 [Network]   ✅ api.xiaomimimo.com 200 (0.3s)
-[Skills]    ✅ 46 installed
+[Skills]    ✅ 42 installed (/root/.openclaw/skills)
 [API Keys]  ✅ MIMO_API_KEY | ✅ ClawHub Token
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Summary: 15 passed | 1 warning | 1 failed
+Summary: 12 passed | 1 warning | 0 failed
 ```
+
+## 版本历史
+
+### v1.2 (2026-04-27)
+
+- 🍎 macOS 内存检测改用 `vm_stat`，正确计算可用内存（free + speculative pages）
+- 📂 Skills 路径动态获取：优先 `openclaw config get skills.dir`，不再硬编码
+- 🔄 OpenClaw 版本对比：从 npm registry 拉取最新版本，落后时 warn 提示
+- ✨ `--brief` 模式无问题时输出 "All clear ✅"
+
+### v1.0.1 (2026-04-24)
+
+- 🚀 首发：系统自检 Skill，支持 OpenClaw 平台，预留 MiClaw/Hermes，三种输出模式，告警阈值
 
 ## 定时自检（Cron）
 
