@@ -118,5 +118,5 @@ V1.7 并行自检框架，6类15项检查，0.06s 完成：
 
 ## 链接
 
-- GitLab: https://gitlab.scnet.cn:9002/space/aaroncxxx/Empire-Architecture
-- ClawHub: https://clawhub.ai/aaroncxxx/empire-architecture
+- GitLab: (private)
+- ClawHub: (private)

@@ -39,8 +39,8 @@ MiMo | LangGraph | Redis | RabbitMQ | Flower | Vault | Prometheus
 
 ## 链接
 
-- GitLab: https://gitlab.scnet.cn:9002/space/aaroncxxx/Empire-Architecture
-- ClawHub: https://clawhub.ai/aaroncxxx/empire-architecture
+- GitLab: (private)
+- ClawHub: (private)
 
 ## License
 
