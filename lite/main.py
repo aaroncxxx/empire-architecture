@@ -30,7 +30,7 @@ class EmpireCLI:
     def print_banner(self):
         print("""
 ╔══════════════════════════════════════════════╗
-║       帝国架构 v2.0  Empire Lite             ║
+║     Empire Architecture 2.0.2 lite           ║
 ║──────────────────────────────────────────────║
 ║  皇帝: AARONCXXX    丞相: Mimo              ║
 ║  参谋: 3人          执行: 3人               ║
