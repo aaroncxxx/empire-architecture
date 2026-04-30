@@ -1,47 +1,30 @@
-# Empire Architecture v2.0
+# 🏛️ Empire Architecture v2.0
 
-基于中国古代三公九卿制的 AI 多智能体协作系统
+> 基于中国古代三公九卿制的 AI 多智能体协作系统
+> AI Multi-Agent Collaboration System Inspired by Ancient Chinese Governance
 
-## 快速开始
+![Python](https://img.shields.io/badge/Python-3.8+-blue?logo=python)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Version](https://img.shields.io/badge/Version-2.0-orange)
+![Agents](https://img.shields.io/badge/Agents-537-purple)
+
+## ✨ Features / 功能
+
+- 🏛️ **三公九卿制** — 古代治理结构映射 AI Agent 架构
+- 🤖 **537 节点** — 大规模多智能体协作
+- 🔗 **Agent Observatory** — 多智能体观测台
+- 📊 **可视化** — 实时监控 Agent 状态
+
+## 🚀 Quick Start / 快速开始
 
 ```bash
 cd lite/
-export MIMO_API_KEY="your-key"
-export MIMO_API_ENDPOINT="your-endpoint"
-python3 main.py
+export MIMO_API_KEY=your_key
+python main.py
 ```
 
-## 架构
+## 📝 Author / 作者
 
-25 节点核心 + 537 节点天文台集群，采用三公九卿制组织：
+> Built with MIMO 🦋 | Ancient wisdom meets modern AI
 
-- 丞相协调 → 参谋分析 → 六部执行 → 翰林知识 → 锦衣卫安全
-- 观星台集群：512 Agent / 64 计算单元
-- 并行自检：6类15项，0.06s 完成
-
-## 目录
-
-```
-├── lite/       # 可运行代码
-├── docs/       # 文档归档
-└── CHANGELOG.md
-```
-
-## 详细文档
-
-- [架构设计](docs/architecture-v1.md)
-- [评估报告](docs/evaluation-v1.4.md)
-- [历史变更](docs/CHANGELOG-legacy.md)
-
-## 技术栈
-
-MiMo | LangGraph | Redis | RabbitMQ | Flower | Vault | Prometheus
-
-## 链接
-
-- GitLab: (private)
-- ClawHub: (private)
-
-## License
-
-MIT-0
+⭐ Star this repo if you find it useful!
