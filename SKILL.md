@@ -116,6 +116,35 @@ V1.7 并行自检框架，6类15项检查，0.06s 完成：
     └── observatory/
 ```
 
+## 量子计算思维模拟器 (v2.1)
+
+新增 skill：量子计算思维模拟器，直观演示量子计算核心概念。
+
+### 核心概念
+
+- **叠加态 (Superposition)**: 量子比特同时处于多个状态
+- **纠缠 (Entanglement)**: 粒子间超距关联
+- **时空复用 (Time-Space Multiplexing)**: 同一 Agent 不同时刻扮演不同角色
+- **量子行走 (Quantum Walk)**: 同时探索多条路径
+
+### 快速使用
+
+```bash
+cd lite/
+python3 skills/quantum_sim/quantum_cli.py              # 交互模式
+python3 skills/quantum_sim/quantum_cli.py demo          # 完整演示
+python3 skills/quantum_sim/quantum_cli.py superposition # 叠加态
+python3 skills/quantum_sim/quantum_cli.py entangle      # 纠缠
+python3 skills/quantum_sim/quantum_cli.py timeslice     # 时空复用
+python3 skills/quantum_sim/quantum_cli.py debate        # 量子辩论
+python3 skills/quantum_sim/quantum_cli.py bell          # Bell 不等式
+```
+
+### 灵感来源
+
+- 九章四号光量子计算原型机
+- 帝国架构三公九卿制多智能体协作
+
 ## 链接
 
 - GitLab: (private)

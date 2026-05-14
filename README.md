@@ -23,6 +23,25 @@ export MIMO_API_KEY=your_key
 python main.py
 ```
 
+## 🔮 量子计算思维模拟器 (v2.1)
+
+```bash
+# 交互模式
+python3 skills/quantum_sim/quantum_cli.py
+
+# 完整演示
+python3 skills/quantum_sim/quantum_cli.py demo
+
+# 单独实验
+python3 skills/quantum_sim/quantum_cli.py superposition  # 叠加态
+python3 skills/quantum_sim/quantum_cli.py entangle       # 纠缠
+python3 skills/quantum_sim/quantum_cli.py timeslice      # 时空复用
+python3 skills/quantum_sim/quantum_cli.py debate         # 量子辩论
+python3 skills/quantum_sim/quantum_cli.py bell           # Bell不等式
+```
+
+灵感来源：九章四号光量子计算原型机
+
 ## 📝 Author / 作者
 
 > Built with MIMO 🦋 | Ancient wisdom meets modern AI
