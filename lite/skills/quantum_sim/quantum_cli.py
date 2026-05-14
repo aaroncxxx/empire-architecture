@@ -28,6 +28,8 @@ from skills.quantum_sim.gates import QuantumGate, CircuitVisualizer
 from skills.quantum_sim.entanglement import EntanglementChamber
 from skills.quantum_sim.timeslice import TimeSpaceMultiplexer
 from skills.quantum_sim.quantum_agent import QuantumAgent, QuantumSwarm
+from skills.quantum_sim.qcomm import QCommCodec, compare_encoding, MsgType
+from skills.quantum_sim.multi_entangle import GHZState, WState, multi_qubit_entanglement_demo
 
 
 class QuantumSimulatorCLI:
@@ -69,6 +71,8 @@ class QuantumSimulatorCLI:
   superposition     叠加态实验
   lhs               拉丁超立方 vs 蒙特卡罗对比
   entangle          纠缠实验
+  ghz               GHZ/W 多比特纠缠
+  qcomm             二进制编码效率对比
   timeslice         时空复用演示（九章四号风格）
   debate            量子辩论实验
   walk              量子行走实验
@@ -233,6 +237,52 @@ else {{
         print(f"  ✅ 已生成: {out_path}")
         print(f"  用浏览器打开即可查看 WebGL 3D 概率幅图")
         print(f"  {len(states)} 个基态，概率越大圆点越大越亮")
+
+    # ─── GHZ/W 多比特纠缠 ───
+
+    def demo_ghz(self):
+        """GHZ/W 多比特纠缠演示"""
+        print(multi_qubit_entanglement_demo())
+
+    # ─── 二进制编码对比 ───
+
+    def demo_qcomm(self):
+        """二进制编码 vs JSON 效率对比"""
+        print(f"\n{'═' * 60}")
+        print("📡 二进制编码 vs JSON (QComm Protocol)")
+        print(f"{'─' * 60}")
+        print("JSON: 可读性强，适合 demo\n二进制: 体积小、解析快，适合大规模\n")
+
+        test_states = [
+            ("|0⟩", Qubit.zero("t")),
+            ("|+⟩", Qubit.plus("t")),
+            ("随机态", Qubit.random("t")),
+        ]
+
+        print(f"{'状态':>10} │ {'JSON':>8} │ {'Binary':>8} │ {'压缩比':>8} │ {'速度提升':>10}")
+        print(f"{'─' * 10}─┼─{'─' * 8}─┼─{'─' * 8}─┼─{'─' * 8}─┼─{'─' * 10}")
+
+        for name, q in test_states:
+            result = compare_encoding(q)
+            print(f"{name:>10} │ {result['json_bytes']:>6} B │ {result['binary_bytes']:>6} B │ {result['compression_ratio']:>8} │ {result['speedup']:>10}")
+
+        # 编码/解码验证
+        print(f"\n编解码验证:")
+        q = Qubit.plus("v")
+        encoded = QCommCodec.encode_qubit(q)
+        decoded = QCommCodec.decode_qubit(encoded)
+        print(f"  原始:  α={q.alpha:.4f}, β={q.beta:.4f}")
+        print(f"  编码:  {encoded.hex()}")
+        print(f"  解码:  α={decoded.alpha:.4f}, β={decoded.beta:.4f}")
+        print(f"  精度损失: {abs(q.alpha - decoded.alpha) + abs(q.beta - decoded.beta):.2e}")
+
+        # 门操作编码
+        print(f"\n门操作编码:")
+        from skills.quantum_sim.qcomm import GateOp
+        for gate_name, op in [("H", GateOp.HADAMARD), ("X", GateOp.PAULI_X), ("CNOT", GateOp.CNOT)]:
+            encoded = QCommCodec.encode_gate_op(op, 0, 1 if gate_name == "CNOT" else -1)
+            decoded = QCommCodec.decode_gate_op(encoded)
+            print(f"  {gate_name:5s}: {len(encoded)} 字节 → {decoded}")
 
     # ─── 纠缠演示 ───
 
@@ -502,6 +552,10 @@ else {{
                     self.demo_lhs()
                 elif cmd == "entangle":
                     self.demo_entanglement()
+                elif cmd == "ghz":
+                    self.demo_ghz()
+                elif cmd == "qcomm":
+                    self.demo_qcomm()
                 elif cmd == "timeslice":
                     self.demo_timeslice()
                 elif cmd == "debate":
@@ -537,6 +591,10 @@ async def main():
             cli.demo_lhs()
         elif arg == "entangle":
             cli.demo_entanglement()
+        elif arg == "ghz":
+            cli.demo_ghz()
+        elif arg == "qcomm":
+            cli.demo_qcomm()
         elif arg == "timeslice":
             cli.demo_timeslice()
         elif arg == "debate":
