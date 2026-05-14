@@ -38,27 +38,42 @@ class QuantumSimulatorCLI:
         self.multiplexer = TimeSpaceMultiplexer()
 
     def print_banner(self):
-        print("""
-╔══════════════════════════════════════════════════════════╗
-║         量子计算思维模拟器 v2.1                           ║
-║  Quantum Computing Thinking Simulator                     ║
-║──────────────────────────────────────────────────────────║
-║  灵感: 九章四号光量子计算原型机                            ║
-║  框架: 帝国架构 Empire Architecture                       ║
-║  概念: 叠加态 | 纠缠 | 并行计算 | 时空复用                ║
-╚══════════════════════════════════════════════════════════╝
-        """)
+        # 响应式：根据终端宽度调整
+        width = self._term_width()
+        pad = max(2, (width - 56) // 2)
+        def line(ch="─"): return ch * (width - 2)
+        def center(text): return text.center(width - 2)
+        print("╔" + line("═") + "╗")
+        print("║" + center("量子计算思维模拟器 v2.1") + "║")
+        print("║" + center("Quantum Computing Thinking Simulator") + "║")
+        print("║" + line("─") + "║")
+        print("║" + center("灵感: 九章四号光量子计算原型机") + "║")
+        print("║" + center("框架: 帝国架构 Empire Architecture") + "║")
+        print("║" + center("概念: 叠加态 | 纠缠 | 并行计算 | 时空复用") + "║")
+        print("╚" + line("═") + "╝")
+
+    def _term_width(self) -> int:
+        """获取终端宽度（响应式）"""
+        try:
+            import shutil
+            return shutil.get_terminal_size((80, 24)).columns
+        except Exception:
+            return 80
 
     def print_help(self):
-        print("""
+        width = self._term_width()
+        def line(ch="─"): return ch * (width - 2)
+        print(f"""
 命令:
   demo              运行完整量子概念演示
   superposition     叠加态实验
+  lhs               拉丁超立方 vs 蒙特卡罗对比
   entangle          纠缠实验
   timeslice         时空复用演示（九章四号风格）
   debate            量子辩论实验
   walk              量子行走实验
   bell               Bell 不等式测试
+  webgl             WebGL 概率幅可视化
   network           查看 Agent 纠缠网络
   help              显示帮助
   exit / quit       退出
@@ -117,6 +132,107 @@ class QuantumSimulatorCLI:
         reg.hadamard(1)
         reg.pauli_x(2)
         print(reg.description())
+
+    # ─── 拉丁超立方 vs 蒙特卡罗对比 ───
+
+    def demo_lhs(self):
+        """拉丁超立方抽样 vs 蒙特卡罗对比"""
+        print(f"\n{'═' * 60}")
+        print("📊 拉丁超立方 vs 蒙特卡罗对比 (LHS vs MC)")
+        print(f"{'─' * 60}")
+        print("LHS: 每层恰好采样一次，收敛速度 O(1/n)")
+        print("MC:  随机采样，收敛速度 O(1/√n)\n")
+
+        # 用非对称态来更好展示 LHS 优势
+        q = QubitState(alpha=complex(0.8, 0), beta=complex(0.6, 0), label="cmp")
+        true_p0 = q.probability_0()
+        print(f"量子态: α=0.8, β=0.6  理论 P(0) = {true_p0:.4f}\n")
+
+        sample_sizes = [10, 50, 100, 500, 1000]
+        print(f"{'样本数':>8} │ {'LHS误差':>10} │ {'MC误差':>10} │ {'LHS优势':>10}")
+        print(f"{'─' * 8}─┼─{'─' * 10}─┼─{'─' * 10}─┼─{'─' * 10}")
+
+        for n in sample_sizes:
+            lhs = Qubit.lhs_estimate_probability(q, n)
+            mc = Qubit.monte_carlo_measure(q, n)
+            err_lhs = lhs["error_p0"]
+            err_mc = mc["error_p0"]
+            advantage = f"{err_mc / err_lhs:.1f}x" if err_lhs > 1e-10 else "完美"
+            print(f"{n:>8} │ {err_lhs:>10.4f} │ {err_mc:>10.4f} │ {advantage:>10}")
+
+        print(f"\n结论: LHS 在相同样本量下误差更小，收敛更快。")
+        print(f"      对大量子比特系统的概率估计尤其有效。")
+
+    # ─── WebGL 概率幅可视化 ───
+
+    def demo_webgl(self):
+        """WebGL 概率幅可视化（生成 HTML）"""
+        print(f"\n{'═' * 60}")
+        print("🎨 WebGL 概率幅可视化")
+        print(f"{'─' * 60}")
+
+        # 生成 3-qubit 状态的概率分布数据
+        import json
+        n_qubits = 3
+        states = []
+        for i in range(2**n_qubits):
+            # 用 Hadamard 创建均匀叠加
+            q = Qubit.zero(f"q{i}")
+            for _ in range(n_qubits):
+                q = QuantumGate.hadamard(q)
+            states.append({
+                "label": f"|{i:0{n_qubits}b}⟩",
+                "prob": 1.0 / (2**n_qubits),
+                "amp_re": q.alpha.real,
+                "amp_im": q.alpha.imag,
+            })
+
+        html = f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>量子概率幅 WebGL</title>
+<style>
+body {{ margin:0; background:#0a0a1a; color:#fff; font-family:monospace; }}
+#info {{ padding:10px; font-size:14px; }}
+canvas {{ display:block; }}
+</style></head><body>
+<div id="info">量子概率幅 3D 可视化 (WebGL) — {len(states)} 个基态</div>
+<canvas id="c"></canvas>
+<script>
+const DATA = {json.dumps(states)};
+const c = document.getElementById('c');
+const gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+if (!gl) {{ document.body.innerHTML = '<h2>WebGL 不支持</h2>'; }}
+else {{
+  function resize() {{ c.width=innerWidth; c.height=innerHeight; gl.viewport(0,0,c.width,c.height); }}
+  resize(); addEventListener('resize', resize);
+  // 简易着色器
+  const vs = `attribute vec2 p; attribute float prob; attribute vec3 color;
+    varying float vProb; varying vec3 vColor;
+    void main() {{ vProb=prob; vColor=color; gl_Position=vec4(p,0,1); gl_PointSize=10.0+prob*40.0; }}`;
+  const fs = `varying float vProb; varying vec3 vColor;
+    void main() {{ gl_FragColor=vec4(vColor, 0.3+vProb*0.7); }}`;
+  function mkShader(t,s) {{ const sh=gl.createShader(t); gl.shaderSource(sh,s); gl.compileShader(sh); return sh; }}
+  const prog=gl.createProgram();
+  gl.attachShader(prog,mkShader(gl.VERTEX_SHADER,vs));
+  gl.attachShader(prog,mkShader(gl.FRAGMENT_SHADER,fs));
+  gl.linkProgram(prog); gl.useProgram(prog);
+  const n=DATA.length, pos=new Float32Array(n*2), col=new Float32Array(n*3), prb=new Float32Array(n);
+  DATA.forEach((d,i) => {{ const a=i/n*Math.PI*2; pos[i*2]=Math.cos(a)*d.prob*3; pos[i*2+1]=Math.sin(a)*d.prob*3;
+    col[i*3]=0.2+d.prob*2; col[i*3+1]=0.6; col[i*3+2]=1.0; prb[i]=d.prob; }});
+  function bind(attr,data,size) {{ const b=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,b);
+    gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW); const loc=gl.getAttribLocation(prog,attr);
+    gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc,size,gl.FLOAT,false,0,0); }}
+  bind('p',pos,2); bind('color',col,3); bind('prob',prb,1);
+  gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  function draw() {{ gl.clearColor(0.04,0.04,0.1,1); gl.clear(gl.COLOR_BUFFER_BIT); gl.drawArrays(gl.POINTS,0,n); requestAnimationFrame(draw); }}
+  draw();
+}}</script></body></html>"""
+
+        out_path = os.path.join(os.path.dirname(__file__), "quantum_viz.html")
+        with open(out_path, "w") as f:
+            f.write(html)
+        print(f"  ✅ 已生成: {out_path}")
+        print(f"  用浏览器打开即可查看 WebGL 3D 概率幅图")
+        print(f"  {len(states)} 个基态，概率越大圆点越大越亮")
 
     # ─── 纠缠演示 ───
 
@@ -382,6 +498,8 @@ class QuantumSimulatorCLI:
                     self.run_full_demo()
                 elif cmd == "superposition":
                     self.demo_superposition()
+                elif cmd == "lhs":
+                    self.demo_lhs()
                 elif cmd == "entangle":
                     self.demo_entanglement()
                 elif cmd == "timeslice":
@@ -392,6 +510,8 @@ class QuantumSimulatorCLI:
                     self.demo_walk()
                 elif cmd == "bell":
                     self.demo_bell()
+                elif cmd == "webgl":
+                    self.demo_webgl()
                 elif cmd == "network":
                     self.show_network()
                 else:
@@ -413,6 +533,8 @@ async def main():
             cli.run_full_demo()
         elif arg == "superposition":
             cli.demo_superposition()
+        elif arg == "lhs":
+            cli.demo_lhs()
         elif arg == "entangle":
             cli.demo_entanglement()
         elif arg == "timeslice":
@@ -423,6 +545,8 @@ async def main():
             cli.demo_walk()
         elif arg == "bell":
             cli.demo_bell()
+        elif arg == "webgl":
+            cli.demo_webgl()
         elif arg == "network":
             cli.show_network()
         else:

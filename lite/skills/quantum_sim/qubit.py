@@ -127,6 +127,66 @@ class Qubit:
         return 0 if random.random() < p0 else 1
 
     @staticmethod
+    def latin_hypercube_measure(state: QubitState, n_samples: int = 100) -> list[int]:
+        """拉丁超立方抽样 (LHS) 测量
+
+        相比蒙特卡罗随机采样，LHS 将概率区间等分为 n_samples 层，
+        每层恰好采样一次，确保采样点均匀覆盖整个概率空间。
+
+        收敛速度：O(1/n) vs 蒙特卡罗的 O(1/√n)
+        """
+        p0 = state.probability_0()
+        results = []
+        # 将 [0, 1] 等分为 n_samples 层
+        for i in range(n_samples):
+            # 每层内的随机偏移
+            low = i / n_samples
+            high = (i + 1) / n_samples
+            sample = random.uniform(low, high)
+            results.append(0 if sample < p0 else 1)
+        # 打乱顺序（保持统计独立性）
+        random.shuffle(results)
+        return results
+
+    @staticmethod
+    def lhs_estimate_probability(state: QubitState, n_samples: int = 100) -> dict:
+        """用 LHS 估计概率分布"""
+        samples = Qubit.latin_hypercube_measure(state, n_samples)
+        count_0 = samples.count(0)
+        count_1 = samples.count(1)
+        return {
+            "method": "latin_hypercube",
+            "n_samples": n_samples,
+            "count_0": count_0,
+            "count_1": count_1,
+            "estimated_p0": count_0 / n_samples,
+            "estimated_p1": count_1 / n_samples,
+            "true_p0": state.probability_0(),
+            "true_p1": state.probability_1(),
+            "error_p0": abs(count_0 / n_samples - state.probability_0()),
+            "error_p1": abs(count_1 / n_samples - state.probability_1()),
+        }
+
+    @staticmethod
+    def monte_carlo_measure(state: QubitState, n_samples: int = 100) -> dict:
+        """经典蒙特卡罗采样（对比用）"""
+        samples = [Qubit.measure(state) for _ in range(n_samples)]
+        count_0 = samples.count(0)
+        count_1 = samples.count(1)
+        return {
+            "method": "monte_carlo",
+            "n_samples": n_samples,
+            "count_0": count_0,
+            "count_1": count_1,
+            "estimated_p0": count_0 / n_samples,
+            "estimated_p1": count_1 / n_samples,
+            "true_p0": state.probability_0(),
+            "true_p1": state.probability_1(),
+            "error_p0": abs(count_0 / n_samples - state.probability_0()),
+            "error_p1": abs(count_1 / n_samples - state.probability_1()),
+        }
+
+    @staticmethod
     def measure_with_collapse(state: QubitState) -> tuple[int, QubitState]:
         """测量并返回坍缩后的状态"""
         result = Qubit.measure(state)

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>量子概率幅 WebGL</title>
+<style>
+body { margin:0; background:#0a0a1a; color:#fff; font-family:monospace; }
+#info { padding:10px; font-size:14px; }
+canvas { display:block; }
+</style></head><body>
+<div id="info">量子概率幅 3D 可视化 (WebGL) — 8 个基态</div>
+<canvas id="c"></canvas>
+<script>
+const DATA = [{"label": "|000\u27e9", "prob": 0.125, "amp_re": 0.7071067811865474, "amp_im": 0.0}, {"label": "|001\u27e9", "prob": 0.125, "amp_re": 0.7071067811865474, "amp_im": 0.0}, {"label": "|010\u27e9", "prob": 0.125, "amp_re": 0.7071067811865474, "amp_im": 0.0}, {"label": "|011\u27e9", "prob": 0.125, "amp_re": 0.7071067811865474, "amp_im": 0.0}, {"label": "|100\u27e9", "prob": 0.125, "amp_re": 0.7071067811865474, "amp_im": 0.0}, {"label": "|101\u27e9", "prob": 0.125, "amp_re": 0.7071067811865474, "amp_im": 0.0}, {"label": "|110\u27e9", "prob": 0.125, "amp_re": 0.7071067811865474, "amp_im": 0.0}, {"label": "|111\u27e9", "prob": 0.125, "amp_re": 0.7071067811865474, "amp_im": 0.0}];
+const c = document.getElementById('c');
+const gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+if (!gl) { document.body.innerHTML = '<h2>WebGL 不支持</h2>'; }
+else {
+  function resize() { c.width=innerWidth; c.height=innerHeight; gl.viewport(0,0,c.width,c.height); }
+  resize(); addEventListener('resize', resize);
+  // 简易着色器
+  const vs = `attribute vec2 p; attribute float prob; attribute vec3 color;
+    varying float vProb; varying vec3 vColor;
+    void main() { vProb=prob; vColor=color; gl_Position=vec4(p,0,1); gl_PointSize=10.0+prob*40.0; }`;
+  const fs = `varying float vProb; varying vec3 vColor;
+    void main() { gl_FragColor=vec4(vColor, 0.3+vProb*0.7); }`;
+  function mkShader(t,s) { const sh=gl.createShader(t); gl.shaderSource(sh,s); gl.compileShader(sh); return sh; }
+  const prog=gl.createProgram();
+  gl.attachShader(prog,mkShader(gl.VERTEX_SHADER,vs));
+  gl.attachShader(prog,mkShader(gl.FRAGMENT_SHADER,fs));
+  gl.linkProgram(prog); gl.useProgram(prog);
+  const n=DATA.length, pos=new Float32Array(n*2), col=new Float32Array(n*3), prb=new Float32Array(n);
+  DATA.forEach((d,i) => { const a=i/n*Math.PI*2; pos[i*2]=Math.cos(a)*d.prob*3; pos[i*2+1]=Math.sin(a)*d.prob*3;
+    col[i*3]=0.2+d.prob*2; col[i*3+1]=0.6; col[i*3+2]=1.0; prb[i]=d.prob; });
+  function bind(attr,data,size) { const b=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,b);
+    gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW); const loc=gl.getAttribLocation(prog,attr);
+    gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc,size,gl.FLOAT,false,0,0); }
+  bind('p',pos,2); bind('color',col,3); bind('prob',prb,1);
+  gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  function draw() { gl.clearColor(0.04,0.04,0.1,1); gl.clear(gl.COLOR_BUFFER_BIT); gl.drawArrays(gl.POINTS,0,n); requestAnimationFrame(draw); }
+  draw();
+}</script></body></html>
