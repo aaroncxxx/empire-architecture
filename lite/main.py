@@ -1,27 +1,33 @@
 #!/usr/bin/env python3
 """
-帝国架构 v2.0 - CLI
-Empire Architecture v2.0 Lite
+帝国架构 v2.9 - CLI
+Empire Architecture v2.9
 
 用法:
   python3 main.py              # 交互模式
   python3 main.py "指令"        # 单次执行
   python3 main.py --status     # 查看状态
-  python3 main.py --knowledge  # 查看知识层状态
+  python3 main.py --agents     # 查看节点
+  python3 main.py --tokens     # 查看 token
+  python3 main.py --knowledge  # 查看知识层
+  python3 main.py --queue      # 查看队列
+  python3 main.py --memory     # 查看记忆
 """
 import asyncio
 import json
 import sys
 import os
-import signal
 import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from chancellor import Chancellor
+from core.logger import get_logger
+
+log = get_logger("cli")
 
 
 class EmpireCLI:
-    """帝国控制台"""
+    """帝国控制台 v2.9"""
 
     def __init__(self):
         self.chancellor = Chancellor()
@@ -29,16 +35,14 @@ class EmpireCLI:
 
     def print_banner(self):
         print("""
-╔══════════════════════════════════════════════╗
-║     Empire Architecture 2.0.2 lite           ║
-║──────────────────────────────────────────────║
-║  皇帝: AARONCXXX    丞相: Mimo              ║
-║  参谋: 3人          执行: 3人               ║
-║  六部: 6人          翰林院: 2人             ║
-║  特殊: 4人          监察: 2人               ║
-║  扩展: 3人          安全: 锦衣卫            ║
-║  知识层: 已挂载                              ║
-╚══════════════════════════════════════════════╝
+╔══════════════════════════════════════════════════════╗
+║          Empire Architecture 2.9                     ║
+║──────────────────────────────────────────────────────║
+║  皇帝: AARONCXXX         丞相: Mimo                  ║
+║  节点: 256               知识层: 已挂载              ║
+║  新增: 标签路由 | 模型分级 | 任务队列 | 熔断器       ║
+║        Agent记忆 | 事前审批 | 中文分词 | 热加载      ║
+╚══════════════════════════════════════════════════════╝
         """)
 
     def print_help(self):
@@ -49,6 +53,9 @@ class EmpireCLI:
   agents        查看所有节点状态
   tokens        查看 token 使用情况
   knowledge     查看知识层状态
+  queue         查看任务队列
+  memory <id>   查看 Agent 记忆
+  bus           查看消息总线统计
   history       查看消息历史
   help          显示帮助
   exit / quit   退出
@@ -87,32 +94,46 @@ class EmpireCLI:
 
             kb_icon = "📚" if result.get("knowledge_used") else "📭"
             print(f"{kb_icon} 知识层: {'已注入' if result.get('knowledge_used') else '无匹配'}")
-            print(f"\n⏱  耗时: {result['elapsed_seconds']}s | Token 今日总消耗: {result['tokens_used']}")
+
+            if result.get("sensitive"):
+                print(f"⚠️  敏感任务: 已记录")
+
+            print(f"\n⏱  耗时: {result['elapsed_seconds']}s | Token 今日: {result['tokens_used']}")
 
         except Exception as e:
             print(f"\n❌ 执行失败: {e}")
+            log.error(f"执行失败: {e}", exc_info=True)
 
     def show_status(self):
         status = self.chancellor.get_status()
         print(f"\n{'═' * 50}")
-        print(f"帝国状态")
+        print(f"帝国状态 v2.9")
         print(f"{'─' * 50}")
         print(f"节点数: {len(status['agents'])}")
         print(f"消息总数: {status['message_history']}")
         print(f"安全事件: {status['security']['total_violations']}")
+        print(f"任务队列: 提交={status['task_queue']['submitted']} 完成={status['task_queue']['completed']} 失败={status['task_queue']['failed']}")
+        print(f"消息总线: 发送={status['bus_stats']['sent']} 接收={status['bus_stats']['received']}")
         if "knowledge_sources" in status:
             print(f"知识源: {', '.join(status['knowledge_sources']) or '无'}")
+        if status.get("model_stats"):
+            print(f"模型使用:")
+            for model, stats in status["model_stats"].items():
+                print(f"  {model}: {stats['calls']}次 输入={stats['input']} 输出={stats['output']}")
 
     def show_agents(self):
         status = self.chancellor.get_status()
         print(f"\n{'═' * 50}")
-        print(f"节点状态")
+        print(f"节点状态 (共{len(status['agents'])}个)")
         print(f"{'─' * 50}")
         for aid, info in status["agents"].items():
             icon = {"idle": "🟢", "busy": "🟡", "error": "🔴"}.get(info["status"], "⚪")
+            tags = ",".join(info.get("tags", []))[:12]
+            avg_rt = info.get("avg_response_time", 0)
             print(f"  {icon} {info['name']:8s} [{info['role']:8s}] "
-                  f"状态:{info['status']:6s} 完成:{info['tasks_completed']} "
-                  f"运行:{info['uptime']}s")
+                  f"tags=[{tags:12s}] 状态:{info['status']:6s} "
+                  f"完成:{info['tasks_completed']} 失败:{info.get('tasks_failed',0)} "
+                  f"avg:{avg_rt:.1f}s")
 
     def show_tokens(self):
         usage = self.chancellor.tracker.get_usage()
@@ -131,7 +152,6 @@ class EmpireCLI:
         print(f"  今日总消耗: {self.chancellor.tracker.get_total_today()}")
 
     def show_knowledge(self):
-        """显示知识层状态"""
         print(f"\n{'═' * 50}")
         print(f"知识层状态")
         print(f"{'─' * 50}")
@@ -150,9 +170,48 @@ class EmpireCLI:
             print(f"\n  翰林院:")
             print(f"    总索引文档: {hanlin['total_docs']}")
             print(f"    总检索次数: {hanlin['total_queries']}")
-            for sid, info in hanlin["scholars"].items():
-                status_icon = {"idle": "🟢", "busy": "🟡", "error": "🔴"}.get(info["status"], "⚪")
-                print(f"    {status_icon} {info['name']} [{info['source']}] 索引:{info['docs_indexed']} 检索:{info['queries_served']}")
+
+    def show_queue(self):
+        qs = self.chancellor.task_queue.get_stats()
+        print(f"\n{'═' * 50}")
+        print(f"任务队列")
+        print(f"{'─' * 50}")
+        print(f"  提交: {qs['submitted']}  完成: {qs['completed']}  失败: {qs['failed']}  重试: {qs['retried']}")
+        print(f"  队列深度: {qs['queue_size']}")
+        print(f"  熔断节点: {qs['circuit_open'] or '无'}")
+
+    def show_bus(self):
+        bs = self.chancellor.bus.get_stats()
+        print(f"\n{'═' * 50}")
+        print(f"消息总线")
+        print(f"{'─' * 50}")
+        print(f"  发送: {bs['sent']}  接收: {bs['received']}")
+        if bs.get("queue_depth"):
+            print(f"  队列深度:")
+            for aid, depth in bs["queue_depth"].items():
+                print(f"    {aid}: {depth}")
+
+    def show_memory(self, agent_id: str):
+        if agent_id not in self.chancellor.agents:
+            print(f"  未知节点: {agent_id}")
+            return
+        agent = self.chancellor.agents[agent_id]
+        mem = agent.memory
+        print(f"\n{'═' * 50}")
+        print(f"{agent.state.name} 的记忆")
+        print(f"{'─' * 50}")
+        print(f"  短期记忆: {len(mem.short_term)} 条")
+        print(f"  长期记忆: {len(mem.long_term)} 条")
+        recent = mem.recall_recent(5)
+        if recent:
+            print(f"\n  最近记忆:")
+            for m in recent:
+                print(f"    · {m[:80]}")
+        important = mem.recall_important(3)
+        if important:
+            print(f"\n  重要记忆:")
+            for m in important:
+                print(f"    ⭐ {m[:80]}")
 
     def show_history(self):
         history = self.chancellor.bus.get_history(20)
@@ -164,7 +223,6 @@ class EmpireCLI:
             print(f"  [{ts}] {msg.sender} → {msg.receiver} ({msg.msg_type.value}): {msg.content[:80]}")
 
     async def interactive(self):
-        """交互模式"""
         self.print_banner()
         self.print_help()
 
@@ -187,8 +245,14 @@ class EmpireCLI:
                     self.show_tokens()
                 elif cmd == "knowledge":
                     self.show_knowledge()
+                elif cmd == "queue":
+                    self.show_queue()
+                elif cmd == "bus":
+                    self.show_bus()
                 elif cmd == "history":
                     self.show_history()
+                elif cmd.startswith("memory "):
+                    self.show_memory(cmd[7:].strip())
                 else:
                     await self.execute_command(cmd)
 
@@ -212,6 +276,12 @@ async def main():
             cli.show_tokens()
         elif arg == "--knowledge":
             cli.show_knowledge()
+        elif arg == "--queue":
+            cli.show_queue()
+        elif arg == "--bus":
+            cli.show_bus()
+        elif arg == "--memory" and len(sys.argv) > 2:
+            cli.show_memory(sys.argv[2])
         else:
             command = " ".join(sys.argv[1:])
             await cli.execute_command(command)
