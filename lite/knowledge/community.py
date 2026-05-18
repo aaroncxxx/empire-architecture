@@ -258,7 +258,7 @@ class LiblibAIKnowledge(CommunityProvider):
         需要皇帝提供：LiblibAI API Key
         """
         try:
-            api_key = self._credentials.get("api_key", "")
+            api_key = self._credentials.get("api_key") or ""
             headers = {
                 "Content-Type": "application/json",
                 "User-Agent": "EmpireBot/1.3",

@@ -12,7 +12,7 @@ MODELS = {
         "cost_per_1k": 0.05,
     },
     "small": {
-        "name": "mimo-v2.5-flash",
+        "name": "mimo-v2.5-pro",
         "max_tokens": 2048,
         "temperature": 0.5,
         "cost_per_1k": 0.01,

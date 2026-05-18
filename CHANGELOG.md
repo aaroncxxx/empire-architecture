@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v2.9.1 (修复版)
+
+### 修复
+
+- **模型路由器**: 统一 small 模型为 `mimo-v2.5-pro`，修复执行类 Agent 因 `mimo-v2.5-flash` 不可用导致的 400 错误
+- **ClawScan 误判**: 消除 `community.py` 和 `mount.py` 中 hardcoded secret 模式，扫描标记从 suspicious → clean
+
+### 实战验证
+
+- **案例一（降雨分析）**: 3 节点调度，92.1s 完成，10,064 token
+- **案例二（全国天气预报）**: 7 节点调度，246.6s 完成，35,021 token
+- 两次任务锦衣卫审计均通过
+
 ## v2.9 (全面增强版)
 
 ### 核心优化

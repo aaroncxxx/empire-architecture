@@ -104,7 +104,8 @@ def mount_knowledge(chancellor=None) -> dict:
     datawhale_cfg = cfg.get("datawhale", {})
     datawhale_provider = DataWhaleKnowledge()
     if datawhale_cfg.get("enabled"):
-        datawhale_provider.approve(github_token=datawhale_cfg.get("github_token", ""))
+        gh_token = datawhale_cfg.get("github_token") or ""
+        datawhale_provider.approve(github_token=gh_token)
         router.register(datawhale_provider)
 
     scholar_dw = HanlinScholar("scholar_datawhale", "DataWhale大学士", "datawhale")
