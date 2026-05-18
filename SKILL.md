@@ -1,14 +1,14 @@
 ---
 name: empire-architecture
-description: 帝国架构 — 基于中国古代三公九卿制的 AI 多智能体协作系统。537节点、量子计算思维模拟器、时空复用。
+description: 帝国架构 — 基于中国古代三公九卿制的 AI 多智能体协作系统。256节点、标签路由、模型分级、任务队列、Agent记忆、量子计算思维模拟器。
 metadata:
   openclaw:
-    version: 2.1.1
+    version: 2.9
     author: aaroncxxx
     tags: [multi-agent, quantum, ai, collaboration, empire]
 ---
 
-# 帝国架构 Empire Architecture v2.1
+# 帝国架构 Empire Architecture v2.9
 
 基于中国古代三公九卿制的 AI 多智能体协作系统
 
@@ -16,37 +16,55 @@ metadata:
 
 帝国架构是一个多智能体协作系统，采用三公九卿制组织架构，将复杂任务分解为多个专业 Agent 协同完成。
 
+v2.9 全面增强：标签路由、模型分级、任务队列、Agent记忆、中文分词、配置热加载、结构化日志。
+
 ### 核心架构
 
-- **中枢**：丞相 — 总协调，任务分解与调度
-- **参谋**：谋略/技术/情报 — 分析决策
-- **执行**：文曹/码曹/查曹 — 任务执行
-- **六部**：吏/户/礼/兵/刑/工 — 专项管理
-- **翰林**：翰林学士/国子监 — 知识管理
-- **特殊**：钦天监/太医/御厨 — 预警/诊断/清洗
-- **监察**：御史大夫/中书令 — 质量/流程
-- **扩展**：大理寺/大鸿胪/少府 — 逻辑/翻译/创意
-- **安全**：锦衣卫 — 安全审计
+- **中枢**：丞相 — 总协调，任务分解与调度，标签路由筛选
+- **三公**：丞相/太尉/御史大夫 — 最高决策层
+- **九卿**：太常/光禄勋/卫尉/太仆/廷尉/大鸿胪/宗正/大司农/少府 — 核心行政
+- **参谋团**：16 位 — 战略/技术/情报/财务/文化/军事/外交/法务/后勤/人才/数据/安全/研究/媒体/商务/创新
+- **执行官**：24 位 — 写作/编码/检索/分析/翻译/设计/审核/摘要/规划/测试/部署/监控/...
+- **翰林院**：12 位博士 — 知识管理 + RAG 检索
+- **六部**：吏/户/礼/兵/刑/工 — 行政执行
+- **监察御史**：12 位 — 廉政/效能/品质/合规/财务/安全/数据/服务/流程/技术/风险/汇报
+- **武将营**：24 位 — 军事执行
+- **郡守**：32 位 — 地方治理
+- **都督区**：16 位 — 军政一体
+- **钦差**：14 位 — 皇帝特派
+- **锦衣卫** — 安全审计 + 事前审批
 
-### 运行版本
+### v2.9 新增
 
-lite/ 目录包含可运行的 Python 实现（25节点核心 + 537节点天文台集群）。
+- **标签路由**：Agent 带标签，丞相按关键词筛选节点，prompt 减少 60%+
+- **模型分级**：丞相/参谋→pro，执行/监察→flash，节省 token
+- **任务队列**：优先级 + 超时 90s + 自动重试 2 次 + 指数退避
+- **熔断器**：连续 5 次失败自动熔断 300s
+- **Agent 记忆**：短期 20 条 + 长期持久化，高重要性自动存入
+- **对话历史**：最近 10 轮注入 LLM 上下文
+- **中文分词**：正向最大匹配 + 术语词典
+- **LRU 缓存**：检索结果 5 分钟 TTL
+- **配置热加载**：mtime 检测自动重载
+- **结构化日志**：RotatingFileHandler 10MB×5
+- **事前安全检查**：敏感关键词预警
+- **消息总线增强**：deque(maxlen=2000)，Agent 间直接通信
 
 ## 快速开始
 
 ```bash
-# 进入 lite 目录
 cd lite/
-
-# 配置 LLM 凭据
 export MIMO_API_KEY="your-api-key"
 export MIMO_API_ENDPOINT="your-endpoint"
 
-# 运行主程序
-python3 main.py
-
-# 运行并行自检
-python3 selfcheck_v17.py
+python3 main.py              # 交互模式
+python3 main.py "你的指令"    # 单次执行
+python3 main.py --status     # 帝国状态
+python3 main.py --agents     # 节点列表
+python3 main.py --tokens     # Token 消耗
+python3 main.py --knowledge  # 知识层
+python3 main.py --queue      # 任务队列
+python3 main.py --bus        # 消息总线
+python3 main.py --memory <id> # Agent 记忆
 ```
 
 ## 配置
@@ -55,107 +73,78 @@ python3 selfcheck_v17.py
 
 ```json
 {
-  "agents": [...],
-  "knowledge": {...},
-  "security": {...}
+  "llm": {
+    "model": "mimo-v2.5-pro",
+    "timeout_seconds": 60
+  },
+  "agents": {
+    "chancellor": { "id": "chancellor", "name": "丞相", "tags": ["核心"] },
+    "advisors": [{ "id": "...", "name": "...", "tags": ["参谋"] }],
+    ...
+  }
 }
 ```
 
 ## 知识层
 
-支持多种知识源：
-- 本地 RAG（local_rag）
-- 腾讯云（tencent_cloud）
-- 飞书（feishu）
+支持 8 个知识源：
+- 本地 RAG（local_rag）— 默认启用，中文分词 + LRU 缓存
+- 腾讯云知识引擎（tencent_cloud）
+- 飞书知识库（feishu）
 - Notion（notion_kb）
-- 社区知识库（community）
+- WaytoAGI（waytoagi）
+- DataWhale（datawhale）
+- ModelScope（modelscope）
+- LiblibAI（liblibai）
 
-## 自检框架
+## 量子计算思维模拟器 (v2.1)
 
-V1.7 并行自检框架，6类15项检查，0.06s 完成：
-- 网络连通性
-- API 可用性
-- 文件系统完整性
-- 配置一致性
-- Agent 状态
-- 知识层健康度
+```bash
+python3 skills/quantum_sim/quantum_cli.py demo          # 完整演示
+python3 skills/quantum_sim/quantum_cli.py superposition  # 叠加态
+python3 skills/quantum_sim/quantum_cli.py entangle       # 纠缠
+python3 skills/quantum_sim/quantum_cli.py timeslice      # 时空复用
+python3 skills/quantum_sim/quantum_cli.py debate         # 量子辩论
+python3 skills/quantum_sim/quantum_cli.py bell           # Bell不等式
+```
 
 ## 安全机制
 
-- 锦衣卫投票制
-- 违规三级分类
-- 制衡机制
-- Token 管理：皇帝唯一所有权、吏曹执行分配
-
-## 联邦学习
-
-支持横向/纵向联邦：
-- 参数聚合
-- 安全多方计算
-- Flower 框架集成
-
-## 技术栈
-
-| 层面 | 选型 |
-|------|------|
-| 模型 | MiMo（小米） |
-| 编排 | LangGraph |
-| 通信 | Redis + RabbitMQ |
-| 联邦学习 | Flower |
-| 安全 | Vault + TenSEAL |
-| 监控 | Prometheus + Grafana |
+- 事前安全检查：敏感关键词检测
+- 锦衣卫审计：任务完成后安全审计
+- 违规三级分类 + 投票制
+- 熔断器：连续失败自动隔离
 
 ## 文件结构
 
 ```
-├── SKILL.md          # 本文件
-├── README.md         # 项目说明
-├── CHANGELOG.md      # 变更记录
-├── docs/             # 文档归档
-│   ├── CHANGELOG-legacy.md
-│   ├── architecture-v1.md
-│   └── evaluation-v1.4.md
-└── lite/             # 可运行代码
-    ├── main.py       # CLI 入口
-    ├── chancellor.py # 丞相协调器
-    ├── selfcheck_v17.py
-    ├── config.json
-    ├── agents/
+├── README.md
+├── CHANGELOG.md
+├── SKILL.md
+├── docs/
+└── lite/
+    ├── main.py           # CLI 入口
+    ├── chancellor.py     # 丞相协调器
+    ├── config.json       # 256 节点配置
+    ├── agents/base.py    # Agent 基类（记忆+模型路由）
     ├── core/
-    ├── knowledge/
-    └── observatory/
+    │   ├── bus.py        # 消息总线（maxlen+Agent间通信）
+    │   ├── tokens.py     # Token 追踪（WAL+线程安全）
+    │   ├── security.py   # 安全系统（事前检查）
+    │   ├── taskqueue.py  # 任务队列（重试+熔断）
+    │   ├── model_router.py # 模型路由器
+    │   ├── memory.py     # Agent 记忆系统
+    │   ├── config.py     # 配置（热加载）
+    │   └── logger.py     # 结构化日志
+    ├── knowledge/        # 知识层（8源）
+    ├── skills/quantum_sim/ # 量子模拟器
+    └── data/             # 运行时数据
+        ├── knowledge/    # 向量库
+        ├── logs/         # 日志文件
+        ├── memory/       # Agent 长期记忆
+        └── tokens.db     # Token 数据库
 ```
-
-## 量子计算思维模拟器 (v2.1)
-
-新增 skill：量子计算思维模拟器，直观演示量子计算核心概念。
-
-### 核心概念
-
-- **叠加态 (Superposition)**: 量子比特同时处于多个状态
-- **纠缠 (Entanglement)**: 粒子间超距关联
-- **时空复用 (Time-Space Multiplexing)**: 同一 Agent 不同时刻扮演不同角色
-- **量子行走 (Quantum Walk)**: 同时探索多条路径
-
-### 快速使用
-
-```bash
-cd lite/
-python3 skills/quantum_sim/quantum_cli.py              # 交互模式
-python3 skills/quantum_sim/quantum_cli.py demo          # 完整演示
-python3 skills/quantum_sim/quantum_cli.py superposition # 叠加态
-python3 skills/quantum_sim/quantum_cli.py entangle      # 纠缠
-python3 skills/quantum_sim/quantum_cli.py timeslice     # 时空复用
-python3 skills/quantum_sim/quantum_cli.py debate        # 量子辩论
-python3 skills/quantum_sim/quantum_cli.py bell          # Bell 不等式
-```
-
-### 灵感来源
-
-- 九章四号光量子计算原型机
-- 帝国架构三公九卿制多智能体协作
 
 ## 链接
 
-- GitLab: (private)
-- ClawHub: (private)
+- GitLab: https://gitlab.scnet.cn:9002/space/aaroncxxx/Empire-Architecture
